@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "Library Lens API"
+    app_version: str = "0.1.0"
     db_user: str
     db_name: str
     db_password: str
