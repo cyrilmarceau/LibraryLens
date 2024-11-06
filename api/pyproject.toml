@@ -5,5 +5,10 @@ description = "Manage your film, series, and book collections with ease."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cryptography>=43.0.3",
     "fastapi[standard]>=0.115.4",
+    "pydantic-settings>=2.6.1",
+    "pymysql>=1.1.1",
+    "python-dotenv>=1.0.1",
+    "sqlmodel>=0.0.22",
 ]
