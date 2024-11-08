@@ -8,6 +8,9 @@ from app.schemas.movie import Movie, Movies
 router = APIRouter()
 
 
+
+
+
 @router.get(
     "/movies",
     tags=["movies"],
