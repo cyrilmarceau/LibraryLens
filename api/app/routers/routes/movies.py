@@ -14,7 +14,7 @@ router = APIRouter()
     description="Get all movies",
     response_description="List of movies"
 )
-def read_movies(
+async def read_movies(
         session: SessionDep,
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100
@@ -30,9 +30,14 @@ def read_movies(
     response_model=Movie,
     description="Create a new movie",
 )
-def create_movie(movie: Movie, session: SessionDep) -> Movie:
+async def create_movie(movie: Movie, session: SessionDep):
     session.add(movie)
     session.commit()
     session.refresh(movie)
 
     return movie
+
+
+@router.get('/movies/{movie_id}', tags=["movies"], response_model=Movie)
+async def read_movie(movie_id: int, session: SessionDep):
+    return session.get(Movie, movie_id)
