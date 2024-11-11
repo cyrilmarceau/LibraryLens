@@ -33,7 +33,15 @@ async def read_movies(
     response_model=Movie,
     description="Create a new movie",
 )
-async def create_movie(movie: Movie, session: SessionDep):
+def create_movie(movie: Movie, session: SessionDep):
+
+    print(movie.model_dump_json(indent=4))
+
+    if session.get(Movie, movie.id):
+        raise HTTPException(status_code=400, detail="Movie already exists")
+
+    movie
+
     session.add(movie)
     session.commit()
     session.refresh(movie)
