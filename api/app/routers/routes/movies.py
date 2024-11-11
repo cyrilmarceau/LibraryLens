@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from sqlmodel import select
 from app.routers.dependencies import SessionDep
 from app.schemas.movie import Movie, Movies
@@ -43,4 +43,7 @@ async def create_movie(movie: Movie, session: SessionDep):
 
 @router.get('/movies/{movie_id}', tags=["movies"], response_model=Movie)
 async def read_movie(movie_id: int, session: SessionDep):
-    return session.get(Movie, movie_id)
+    if movie := session.get(Movie, movie_id):
+        return movie
+
+    raise HTTPException(status_code=404, detail="Movie not found with ID %s" % movie_id)
