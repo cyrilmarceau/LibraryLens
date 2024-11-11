@@ -14,7 +14,7 @@ class Movie(Media, table=True):
     media_type: MediaType = Field(
         default=MediaType.MOVIE, description="Type of media (read-only)"
     )
-    media_platform: MediaPlatform = Field(
+    media_platform: MediaPlatform | None = Field(
         default=None, description="Platform where the movie is available"
     )
     created_at: datetime = Field(
@@ -26,6 +26,9 @@ class Movie(Media, table=True):
         sa_column_kwargs={"onupdate": datetime.now(timezone.utc)},
         description="Last updated time of the movie (read-only)",
     )
+
+    class Config:
+        use_enum_values = True
 
 
 class Movies(SQLModel):
