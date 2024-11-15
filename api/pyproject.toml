@@ -12,5 +12,6 @@ dependencies = [
     "pymysql>=1.1.1",
     "python-dotenv>=1.0.1",
     "python-multipart>=0.0.17",
+    "ruff>=0.7.4",
     "sqlmodel>=0.0.22",
 ]
