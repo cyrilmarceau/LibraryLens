@@ -1,14 +1,28 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Form
 from sqlmodel import select
 from app.routers.dependencies import SessionDep
-from app.schemas.movie import Movie, Movies
+from app.schemas.movie import Movie
+from app.models.movie import MovieCreate, MoviePublic
 
 router = APIRouter()
 
 
+@router.post(
+    "/movies",
+    tags=["movies"],
+    description="Get all movies",
+    response_description="Return the created movie",
+    response_model=MoviePublic
+)
+async def create_movie(*, session: SessionDep, movie: MovieCreate):
+    new_movie = Movie.model_validate(movie)
+    session.add(new_movie)
+    session.commit()
+    session.refresh(new_movie)
 
+    return new_movie
 
 
 @router.get(
@@ -18,39 +32,18 @@ router = APIRouter()
     response_description="List of movies"
 )
 async def read_movies(
+        *,
         session: SessionDep,
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100
-) -> Movies:
+):
     movies = session.exec(select(Movie).offset(offset).limit(limit)).all()
 
-    return Movies(data=movies, count=len(movies))
-
-
-@router.post(
-    "/movies",
-    tags=["movies"],
-    response_model=Movie,
-    description="Create a new movie",
-)
-def create_movie(movie: Movie, session: SessionDep):
-
-    print(movie.model_dump_json(indent=4))
-
-    if session.get(Movie, movie.id):
-        raise HTTPException(status_code=400, detail="Movie already exists")
-
-    movie
-
-    session.add(movie)
-    session.commit()
-    session.refresh(movie)
-
-    return movie
+    return movies
 
 
 @router.get('/movies/{movie_id}', tags=["movies"], response_model=Movie)
-async def read_movie(movie_id: int, session: SessionDep):
+async def read_movie(*,  session: SessionDep, movie_id: int):
     if movie := session.get(Movie, movie_id):
         return movie
 

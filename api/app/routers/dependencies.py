@@ -1,7 +1,6 @@
 from collections.abc import Generator
 from typing import Annotated
-from fastapi import Depends
-
+from fastapi import Depends, HTTPException
 
 from sqlmodel import Session
 
