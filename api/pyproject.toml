@@ -8,6 +8,7 @@ dependencies = [
     "cryptography>=43.0.3",
     "fastapi[standard]>=0.115.4",
     "logfire[fastapi]>=2.3.0",
+    "pre-commit>=4.0.1",
     "pydantic-settings>=2.6.1",
     "pymysql>=1.1.1",
     "python-dotenv>=1.0.1",
