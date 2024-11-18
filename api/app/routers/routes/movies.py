@@ -1,9 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Query, HTTPException
-from sqlmodel import select
+from sqlmodel import select, col
 from app.routers.dependencies import SessionDep
-from app.schemas.movie import Movie
+from app.schemas.movie import Movie, MovieQueryParams
 from app.models.movie import MovieCreate, MoviePublic
 
 router = APIRouter()
@@ -34,17 +34,21 @@ async def create_movie(*, session: SessionDep, movie: MovieCreate):
 async def read_movies(
     *,
     session: SessionDep,
-    q: str = None,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    params: Annotated[MovieQueryParams, Query()]
 ):
     query = select(Movie)
 
-    if q:
-        query = query.where(Movie.title == q)
+    if params.q:
+        query = query.where(Movie.title == params.q)
 
-    # Apply pagination
-    query = query.offset(offset).limit(limit)
+
+    order_column = getattr(Movie, params.sort_by, "title")
+    order_column = col(order_column)
+
+    if params.order_by == "desc":
+        order_column = order_column.desc()
+
+    query = query.order_by(order_column).offset(params.offset).limit(params.limit)
 
     # Execute the query
     movies = session.exec(query).all()
