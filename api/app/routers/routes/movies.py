@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, HTTPException, Form
+from fastapi import APIRouter, Query, HTTPException
 from sqlmodel import select
 from app.routers.dependencies import SessionDep
 from app.schemas.movie import Movie
@@ -14,7 +14,7 @@ router = APIRouter()
     tags=["movies"],
     description="Get all movies",
     response_description="Return the created movie",
-    response_model=MoviePublic
+    response_model=MoviePublic,
 )
 async def create_movie(*, session: SessionDep, movie: MovieCreate):
     new_movie = Movie.model_validate(movie)
@@ -29,21 +29,31 @@ async def create_movie(*, session: SessionDep, movie: MovieCreate):
     "/movies",
     tags=["movies"],
     description="Get all movies",
-    response_description="List of movies"
+    response_description="List of movies",
 )
 async def read_movies(
-        *,
-        session: SessionDep,
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)] = 100
+    *,
+    session: SessionDep,
+    q: str = None,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ):
-    movies = session.exec(select(Movie).offset(offset).limit(limit)).all()
+    query = select(Movie)
+
+    if q:
+        query = query.where(Movie.title == q)
+
+    # Apply pagination
+    query = query.offset(offset).limit(limit)
+
+    # Execute the query
+    movies = session.exec(query).all()
 
     return movies
 
 
-@router.get('/movies/{movie_id}', tags=["movies"], response_model=Movie)
-async def read_movie(*,  session: SessionDep, movie_id: int):
+@router.get("/movies/{movie_id}", tags=["movies"], response_model=Movie)
+async def read_movie(*, session: SessionDep, movie_id: int):
     if movie := session.get(Movie, movie_id):
         return movie
 
