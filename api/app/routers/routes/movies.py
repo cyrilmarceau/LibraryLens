@@ -30,6 +30,7 @@ async def create_movie(*, session: SessionDep, movie: MovieCreate):
     tags=["movies"],
     description="Get all movies",
     response_description="List of movies",
+    response_model=list[Movie],
 )
 async def read_movies(
     *,
