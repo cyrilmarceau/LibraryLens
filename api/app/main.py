@@ -4,9 +4,12 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from sqlmodel import SQLModel
+
+from fastapi_pagination import add_pagination
 
 from .core.config import settings
 from .routers.main import api_router
@@ -23,6 +26,8 @@ app = FastAPI(
     redirect_slashes=False,
     version=settings.app_version,
 )
+
+add_pagination(app)
 
 logfire.configure()
 logfire.instrument_fastapi(app)

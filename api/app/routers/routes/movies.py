@@ -2,6 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query, HTTPException
 from sqlmodel import select, col
+
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
+
 from app.routers.dependencies import SessionDep
 from app.schemas.movie import Movie, MovieQueryParams
 from app.models.movie import MovieCreate, MoviePublic
@@ -30,18 +34,15 @@ async def create_movie(*, session: SessionDep, movie: MovieCreate):
     tags=["movies"],
     description="Get all movies",
     response_description="List of movies",
-    response_model=list[Movie],
+    response_model=Page[Movie],
 )
 async def read_movies(
-    *,
-    session: SessionDep,
-    params: Annotated[MovieQueryParams, Query()]
+    *, session: SessionDep, params: Annotated[MovieQueryParams, Query()]
 ):
     query = select(Movie)
 
     if params.q:
         query = query.where(Movie.title == params.q)
-
 
     order_column = getattr(Movie, params.sort_by, "title")
     order_column = col(order_column)
@@ -49,10 +50,9 @@ async def read_movies(
     if params.order_by == "desc":
         order_column = order_column.desc()
 
-    query = query.order_by(order_column).offset(params.offset).limit(params.limit)
+    query = query.order_by(order_column)
 
-    # Execute the query
-    movies = session.exec(query).all()
+    movies = paginate(session, query)
 
     return movies
 

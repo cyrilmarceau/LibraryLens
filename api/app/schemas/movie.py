@@ -24,8 +24,6 @@ class MovieBase(SQLModel):
 
 class MovieQueryParams(BaseModel):
     q: Optional[str] = Field(default=None, description="Search movies")
-    limit: int = Field(default=100, gt=0, le=100)
-    offset: int = Field(default=0, ge=0)
     sort_by: Literal["title", "created_at", "updated_at"] = "title"
     order_by: Literal["asc", "desc"] = "asc"
 
