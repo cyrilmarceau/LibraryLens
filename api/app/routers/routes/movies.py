@@ -7,7 +7,7 @@ from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 from app.routers.dependencies import SessionDep
-from app.schemas.movie import Movie, MovieQueryParams
+from app.schemas.movie import Movie, MovieQueryParams, MovieUpdate
 from app.models.movie import MovieCreate, MoviePublic
 
 router = APIRouter()
@@ -61,5 +61,20 @@ async def read_movies(
 async def read_movie(*, session: SessionDep, movie_id: int):
     if movie := session.get(Movie, movie_id):
         return movie
+
+    raise HTTPException(status_code=404, detail="Movie not found with ID %s" % movie_id)
+
+
+@router.put("/movies/{movie_id}", tags=["movies"], response_model=Movie)
+async def update_movie(*, session: SessionDep, movie_id: int, movie: MovieUpdate):
+    if db_movie := session.get(Movie, movie_id):
+        movie_data = movie.model_dump(exclude_unset=True)
+        db_movie.sqlmodel_update(movie_data)
+
+        session.add(db_movie)
+        session.commit()
+        session.refresh(db_movie)
+
+        return db_movie
 
     raise HTTPException(status_code=404, detail="Movie not found with ID %s" % movie_id)

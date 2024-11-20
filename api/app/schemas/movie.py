@@ -22,12 +22,6 @@ class MovieBase(SQLModel):
         use_enum_values = True
 
 
-class MovieQueryParams(BaseModel):
-    q: Optional[str] = Field(default=None, description="Search movies")
-    sort_by: Literal["title", "created_at", "updated_at"] = "title"
-    order_by: Literal["asc", "desc"] = "asc"
-
-
 class Movie(MovieBase, table=True):
     id: int = Field(default=None, primary_key=True, description="ID of the movie")
     created_at: datetime = Field(
@@ -39,3 +33,16 @@ class Movie(MovieBase, table=True):
         sa_column_kwargs={"onupdate": datetime.now(timezone.utc)},
         description="Last updated time of the movie (read-only)",
     )
+
+
+class MovieUpdate(SQLModel):
+    title: Optional[str] = None
+    is_liked: Optional[bool] = None
+    is_watched: Optional[bool] = None
+    media_platform: Optional[MediaPlatform] = None
+
+
+class MovieQueryParams(BaseModel):
+    q: Optional[str] = Field(default=None, description="Search movies")
+    sort_by: Literal["title", "created_at", "updated_at"] = "title"
+    order_by: Literal["asc", "desc"] = "asc"
